@@ -1,7 +1,7 @@
 const express = require("express");
 const http = require("http");
 const { ApolloServer } = require("apollo-server-express");
-const { schema } = require("./schema/schema");
+const { schema } = require("./schema");
 
 const app = express();
 const server = new ApolloServer({ schema });

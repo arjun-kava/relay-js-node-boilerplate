@@ -21,7 +21,7 @@ const Query = new GraphQLObjectType({
   },
 });
 
-/*const Mutation = new GraphQLObjectType({
+const Mutation = new GraphQLObjectType({
   name: "Mutation",
   fields: {
     addTodo: AddTodoMutation,
@@ -31,10 +31,10 @@ const Query = new GraphQLObjectType({
     removeTodo: RemoveTodoMutation,
     renameTodo: RenameTodoMutation,
   },
-});*/
+});
 
 const schema = new GraphQLSchema({
   query: Query,
-  //mutation: Mutation,
+  mutation: Mutation,
 });
 exports.schema = schema;

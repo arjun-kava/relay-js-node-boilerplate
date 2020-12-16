@@ -12,7 +12,7 @@ const {
   connectionFromArray,
   globalIdField,
 } = require("graphql-relay");
-const { getTodos } = require("../data/database");
+const { getTodos, USER_ID } = require("../data/database");
 const { nodeInterface } = require("./global.defination");
 
 const GraphQLTodo = new GraphQLObjectType({

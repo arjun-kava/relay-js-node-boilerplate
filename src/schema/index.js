@@ -12,6 +12,7 @@ const {
 } = require("./mutations/RemoveCompletedTodosMutation");
 const { RemoveTodoMutation } = require("./mutations/RemoveTodoMutation");
 const { RenameTodoMutation } = require("./mutations/RenameTodoMutation");
+const { TodoSubscriptions } = require("./subscriptions/TodoSubscriptions");
 
 const Query = new GraphQLObjectType({
   name: "Query",
@@ -33,8 +34,16 @@ const Mutation = new GraphQLObjectType({
   },
 });
 
+const Subscription = new GraphQLObjectType({
+  name: "Subscription",
+  fields: {
+    ...TodoSubscriptions,
+  },
+});
+
 const schema = new GraphQLSchema({
   query: Query,
   mutation: Mutation,
+  subscription: Subscription,
 });
 exports.schema = schema;

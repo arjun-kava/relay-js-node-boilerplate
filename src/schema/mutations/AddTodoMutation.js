@@ -12,6 +12,7 @@ const {
   getTodos,
   getUserOrThrow,
 } = require("../../data/database");
+const { pubSub } = require("../publisher");
 
 const AddTodoMutation = mutationWithClientMutationId({
   name: "AddTodo",
@@ -22,13 +23,8 @@ const AddTodoMutation = mutationWithClientMutationId({
   outputFields: {
     todoEdge: {
       type: new GraphQLNonNull(GraphQLTodoEdge),
-      resolve: ({ todoId }) => {
-        const todo = getTodoOrThrow(todoId);
-
-        return {
-          cursor: cursorForObjectInConnection([...getTodos()], todo),
-          node: todo,
-        };
+      resolve: ({ todoEdge }) => {
+        return todoEdge;
       },
     },
     user: {
@@ -38,8 +34,18 @@ const AddTodoMutation = mutationWithClientMutationId({
   },
   mutateAndGetPayload: ({ text, userId }) => {
     const todoId = addTodo(text, false);
+    const todo = getTodoOrThrow(todoId);
 
-    return { todoId, userId };
+    const todoEdge = {
+      cursor: cursorForObjectInConnection([...getTodos()], todo),
+      node: todo,
+    };
+
+    pubSub.publish("todoAdded", {
+      todoAdded: todoEdge,
+    });
+
+    return { todoEdge, userId };
   },
 });
 

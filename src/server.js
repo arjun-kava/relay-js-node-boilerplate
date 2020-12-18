@@ -1,5 +1,5 @@
 const { httpServer, server } = require("./app");
-require("events").EventEmitter.defaultMaxListeners = 20;
+require("events").EventEmitter.defaultMaxListeners = 2000000;
 
 httpServer.listen({ port: process.env.SERVER_PORT }, () => {
   console.log(

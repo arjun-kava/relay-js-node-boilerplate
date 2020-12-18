@@ -22,8 +22,13 @@ const MarkAllTodosMutation = mutationWithClientMutationId({
   outputFields: {
     changedTodos: {
       type: new GraphQLList(new GraphQLNonNull(GraphQLTodo)),
-      resolve: ({ changedTodoIds }) =>
-        changedTodoIds.map((todoId) => getTodoOrThrow(todoId)),
+      resolve: ({ changedTodoIds }) => {
+        return changedTodoIds.map((todoId) => {
+          const todo = getTodoOrThrow(todoId);
+
+          return todo;
+        });
+      },
     },
     user: {
       type: new GraphQLNonNull(GraphQLUser),

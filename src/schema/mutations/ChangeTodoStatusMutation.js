@@ -1,11 +1,17 @@
-const { fromGlobalId, mutationWithClientMutationId } = require("graphql-relay");
+const {
+  fromGlobalId,
+  mutationWithClientMutationId,
+  cursorForObjectInConnection,
+} = require("graphql-relay");
 const { GraphQLBoolean, GraphQLID, GraphQLNonNull } = require("graphql");
 const { GraphQLTodo, GraphQLUser } = require("../nodes");
 const {
   changeTodoStatus,
   getTodoOrThrow,
   getUserOrThrow,
+  getTodos,
 } = require("../../data/database");
+const { pubSub } = require("../publisher");
 
 const ChangeTodoStatusMutation = mutationWithClientMutationId({
   name: "ChangeTodoStatus",
@@ -17,7 +23,9 @@ const ChangeTodoStatusMutation = mutationWithClientMutationId({
   outputFields: {
     todo: {
       type: new GraphQLNonNull(GraphQLTodo),
-      resolve: ({ todoId }) => getTodoOrThrow(todoId),
+      resolve: ({ todo }) => {
+        return todo;
+      },
     },
     user: {
       type: new GraphQLNonNull(GraphQLUser),
@@ -28,7 +36,17 @@ const ChangeTodoStatusMutation = mutationWithClientMutationId({
     const todoId = fromGlobalId(id).id;
     changeTodoStatus(todoId, complete);
 
-    return { todoId, userId };
+    const todo = getTodoOrThrow(todoId);
+    const todoEdge = {
+      cursor: cursorForObjectInConnection([...getTodos()], todo),
+      node: todo,
+    };
+
+    pubSub.publish("todoUpdated", {
+      todoUpdated: todoEdge,
+    });
+
+    return { todo, userId };
   },
 });
 

@@ -1,7 +1,17 @@
-const { mutationWithClientMutationId, fromGlobalId } = require("graphql-relay");
+const {
+  mutationWithClientMutationId,
+  fromGlobalId,
+  cursorForObjectInConnection,
+} = require("graphql-relay");
 const { GraphQLID, GraphQLNonNull, GraphQLString } = require("graphql");
 const { GraphQLTodo } = require("../nodes");
-const { getTodoOrThrow, renameTodo, Todo } = require("../../data/database");
+const {
+  getTodoOrThrow,
+  renameTodo,
+  Todo,
+  getTodos,
+} = require("../../data/database");
+const { pubSub } = require("../publisher");
 
 const RenameTodoMutation = mutationWithClientMutationId({
   name: "RenameTodo",
@@ -12,14 +22,26 @@ const RenameTodoMutation = mutationWithClientMutationId({
   outputFields: {
     todo: {
       type: new GraphQLNonNull(GraphQLTodo),
-      resolve: ({ localTodoId }) => getTodoOrThrow(localTodoId),
+      resolve: ({ todo }) => {
+        return todo;
+      },
     },
   },
   mutateAndGetPayload: ({ id, text }) => {
     const localTodoId = fromGlobalId(id).id;
     renameTodo(localTodoId, text);
 
-    return { localTodoId };
+    const todo = getTodoOrThrow(localTodoId);
+    const todoEdge = {
+      cursor: cursorForObjectInConnection([...getTodos()], todo),
+      node: todo,
+    };
+
+    pubSub.publish("todoUpdated", {
+      todoUpdated: todoEdge,
+    });
+
+    return { todo };
   },
 });
 

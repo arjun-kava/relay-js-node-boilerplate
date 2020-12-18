@@ -37,13 +37,8 @@ const ChangeTodoStatusMutation = mutationWithClientMutationId({
     changeTodoStatus(todoId, complete);
 
     const todo = getTodoOrThrow(todoId);
-    const todoEdge = {
-      cursor: cursorForObjectInConnection([...getTodos()], todo),
-      node: todo,
-    };
-
     pubSub.publish("todoUpdated", {
-      todoUpdated: todoEdge,
+      todoUpdated: todo,
     });
 
     return { todo, userId };

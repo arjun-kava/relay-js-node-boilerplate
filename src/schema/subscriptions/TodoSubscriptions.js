@@ -1,4 +1,5 @@
-const { GraphQLTodoEdge } = require("../nodes");
+const { GraphQLString } = require("graphql");
+const { GraphQLTodoEdge, GraphQLTodo } = require("../nodes");
 const { pubSub } = require("../publisher");
 
 const TodoSubscriptions = {
@@ -7,11 +8,11 @@ const TodoSubscriptions = {
     subscribe: () => pubSub.asyncIterator("todoAdded"),
   },
   todoUpdated: {
-    type: GraphQLTodoEdge,
+    type: GraphQLTodo,
     subscribe: () => pubSub.asyncIterator("todoUpdated"),
   },
   todoRemoved: {
-    type: GraphQLTodoEdge,
+    type: GraphQLTodo,
     subscribe: () => pubSub.asyncIterator("todoRemoved"),
   },
 };

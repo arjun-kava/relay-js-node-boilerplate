@@ -1,7 +1,13 @@
 const { mutationWithClientMutationId, fromGlobalId } = require("graphql-relay");
 const { GraphQLID, GraphQLNonNull } = require("graphql");
 const { GraphQLUser } = require("../nodes");
-const { getUserOrThrow, removeTodo, User } = require("../../data/database");
+const {
+  getUserOrThrow,
+  removeTodo,
+  User,
+  getTodoOrThrow,
+} = require("../../data/database");
+const { pubSub } = require("../publisher");
 
 const RemoveTodoMutation = mutationWithClientMutationId({
   name: "RemoveTodo",
@@ -21,7 +27,12 @@ const RemoveTodoMutation = mutationWithClientMutationId({
   },
   mutateAndGetPayload: ({ id, userId }) => {
     const localTodoId = fromGlobalId(id).id;
+    const todo = getTodoOrThrow(localTodoId);
     removeTodo(localTodoId);
+
+    pubSub.publish("todoRemoved", {
+      todoRemoved: todo,
+    });
 
     return { id, userId };
   },

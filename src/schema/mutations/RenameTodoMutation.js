@@ -32,13 +32,8 @@ const RenameTodoMutation = mutationWithClientMutationId({
     renameTodo(localTodoId, text);
 
     const todo = getTodoOrThrow(localTodoId);
-    const todoEdge = {
-      cursor: cursorForObjectInConnection([...getTodos()], todo),
-      node: todo,
-    };
-
     pubSub.publish("todoUpdated", {
-      todoUpdated: todoEdge,
+      todoUpdated: todo,
     });
 
     return { todo };

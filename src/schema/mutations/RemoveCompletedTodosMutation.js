@@ -11,6 +11,7 @@ const {
   removeCompletedTodos,
   User,
 } = require("../../data/database");
+const { pubSub } = require("../publisher");
 
 const RemoveCompletedTodosMutation = mutationWithClientMutationId({
   name: "RemoveCompletedTodos",
@@ -33,7 +34,11 @@ const RemoveCompletedTodosMutation = mutationWithClientMutationId({
     const deletedTodoIds = deletedTodoLocalIds.map(
       toGlobalId.bind(null, "Todo")
     );
-
+    pubSub.publish("todoRemoveCompleted", {
+      todoRemoveCompleted: {
+        deletedTodoIds: deletedTodoIds,
+      },
+    });
     return { deletedTodoIds, userId };
   },
 });

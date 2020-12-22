@@ -49,7 +49,9 @@ function changeTodoStatus(id, complete) {
   const todo = getTodoOrThrow(id);
 
   // Replace with the modified complete value
-  todosById.set(id, new Todo(id, todo.text, complete));
+  const todoUpdated = new Todo(id, todo.text, complete);
+  todosById.set(id, todoUpdated);
+  return todoUpdated;
 }
 exports.changeTodoStatus = changeTodoStatus;
 
@@ -100,11 +102,13 @@ function getUserOrThrow(id) {
 exports.getUserOrThrow = getUserOrThrow;
 
 function markAllTodos(complete) {
-  const todosToChange = getTodos().filter((todo) => todo.complete !== complete);
+  let todosToChange = getTodos().filter((todo) => todo.complete !== complete);
 
-  todosToChange.forEach((todo) => changeTodoStatus(todo.id, complete));
+  todosToChange = todosToChange.map((todo) =>
+    changeTodoStatus(todo.id, complete)
+  );
 
-  return todosToChange.map((todo) => todo.id);
+  return todosToChange;
 }
 exports.markAllTodos = markAllTodos;
 

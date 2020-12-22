@@ -12,6 +12,7 @@ const {
   getUserOrThrow,
   markAllTodos,
 } = require("../../data/database");
+const { pubSub } = require("../publisher");
 
 const MarkAllTodosMutation = mutationWithClientMutationId({
   name: "MarkAllTodos",
@@ -22,12 +23,8 @@ const MarkAllTodosMutation = mutationWithClientMutationId({
   outputFields: {
     changedTodos: {
       type: new GraphQLList(new GraphQLNonNull(GraphQLTodo)),
-      resolve: ({ changedTodoIds }) => {
-        return changedTodoIds.map((todoId) => {
-          const todo = getTodoOrThrow(todoId);
-
-          return todo;
-        });
+      resolve: ({ changedTodos }) => {
+        return changedTodos;
       },
     },
     user: {
@@ -36,9 +33,13 @@ const MarkAllTodosMutation = mutationWithClientMutationId({
     },
   },
   mutateAndGetPayload: ({ complete, userId }) => {
-    const changedTodoIds = markAllTodos(complete);
+    const changedTodos = markAllTodos(complete);
 
-    return { changedTodoIds, userId };
+    pubSub.publish("todoMarkAll", {
+      todoMarkAll: { complete: complete },
+    });
+
+    return { changedTodos, userId };
   },
 });
 

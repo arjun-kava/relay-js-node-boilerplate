@@ -57,13 +57,15 @@ const GraphQLUser = new GraphQLObjectType({
         ...connectionArgs,
       },
       // eslint-disable-next-line flowtype/require-parameter-type
-      resolve: (root, { status, after, before, first, last }) =>
-        connectionFromArray([...getTodos(status)], {
+      resolve: (root, { status, after, before, first, last }) => {
+        const todos = connectionFromArray([...getTodos(status)], {
           after,
           before,
           first,
           last,
-        }),
+        });
+        return todos;
+      },
     },
     totalCount: {
       type: new GraphQLNonNull(GraphQLInt),
